@@ -18,7 +18,7 @@ submit.addEventListener("submit", async function(e){
     });
     const data = await response.json()
   if (data.success){
-    window.location.href = "scanner.html"
+    window.location.href = "/scanner.html"
   }else{
     document.getElementById("text").textContent = data.message;
   }
