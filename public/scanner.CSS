@@ -179,7 +179,31 @@ header {
   border-radius: 50px;
 }
 
+.subject-wrap {
+  width: 100%;
+}
 
+.subject-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.subject-input::placeholder {
+  color: var(--muted);
+}
+
+.subject-input:focus {
+  border-color: var(--green);
+  background: #fafaf8;
+}
 #logout-btn {
   font-family: 'DM Mono', monospace;
   font-size: 0.7rem;

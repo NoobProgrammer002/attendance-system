@@ -6,12 +6,16 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 app.use(session({
   secret: "attendance-secret-key",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: { sameSite: 'lax' }
 }));
 
 const TEACHERS = [
@@ -43,9 +47,8 @@ app.post("/attendance", (req, res) => {
     return res.json({ success: false, message: "Not logged in" });
   }
 
-  const { name, roll, branch } = req.body;
+  const { name, roll, branch, subject } = req.body;
 
-  // validate student against students.json
   const students = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "students.json")));
   const branchList = students[branch];
 
@@ -54,7 +57,6 @@ app.post("/attendance", (req, res) => {
   }
 
   const studentExists = branchList.some(s => s.roll === Number(roll));
-
   if (!studentExists) {
     return res.json({ success: false, message: "Student not found" });
   }
@@ -73,7 +75,7 @@ app.post("/attendance", (req, res) => {
   }
 
   const record = {
-    name, roll, branch,
+    name, roll, branch, subject,
     time: new Date().toLocaleTimeString(),
     date: new Date().toLocaleDateString()
   };
@@ -82,6 +84,7 @@ app.post("/attendance", (req, res) => {
   fs.writeFileSync(filePath, JSON.stringify(attendance));
   res.json({ success: true, record });
 });
+
 app.get("/download", (req, res) => {
   if (!req.session.teacher) {
     return res.json({ success: false, message: "Not logged in" });
@@ -97,11 +100,12 @@ app.get("/download", (req, res) => {
   const attendance = JSON.parse(fs.readFileSync(filePath));
 
   const BOM = '\uFEFF';
-  const header = ['Name', 'Roll', 'Branch', 'Time', 'Date'].join(',');
+  const header = ['Name', 'Roll', 'Branch', 'Subject', 'Time', 'Date'].join(',');
   const csvRows = attendance.map(record => [
     '"' + record.name.replace(/"/g, '""') + '"',
     record.roll,
     record.branch,
+    record.subject || '',
     record.time,
     record.date
   ].join(','));
@@ -113,11 +117,7 @@ app.get("/download", (req, res) => {
   res.send(csv);
 });
 
-
-
 app.get("/logout", (req, res) => {
-  console.log("logout hit");
-  console.log("teacher:", req.session.teacher);
   if (req.session.teacher) {
     const filePath = path.join(__dirname, "data", `attendance_${req.session.teacher}.json`);
     if (fs.existsSync(filePath)) {
@@ -127,6 +127,7 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.json({ success: true });
 });
+
 app.use(express.static("public"));
 
 app.listen(3000, () => {
