@@ -127,7 +127,9 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.json({ success: true });
 });
-
+app.get("/", (req, res) => {
+  res.redirect("/login.html");
+});
 app.use(express.static("public"));
 
 app.listen(3000, () => {
