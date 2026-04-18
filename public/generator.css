@@ -1,0 +1,367 @@
+/* =============================================================
+   generator.css  —  AttendX QR Generator Page
+   Supports dark and light mode via [data-theme="dark"] on <html>
+   All original IDs and classes kept unchanged.
+   ============================================================= */
+
+
+/* -------------------------------------------------------------
+   1. THEME VARIABLES
+      Light mode is default. Dark mode overrides these when
+      [data-theme="dark"] is set on the <html> element.
+------------------------------------------------------------- */
+:root {
+  --bg:               #f5f4f0;
+  --surface:          #ffffff;
+  --border:           #e2e0d8;
+  --text:             #1a1a1a;
+  --muted:            #888880;
+  --input-bg:         #f5f4f0;
+  --green:            #1db954;
+  --btn-bg:           #1a1a1a;
+  --btn-text:         #ffffff;
+  --placeholder-color:#b0ada6;
+}
+
+/* Dark mode overrides — applied when JS sets data-theme="dark" on <html> */
+[data-theme="dark"] {
+  --bg:               #0f0f0f;
+  --surface:          #1a1a1a;
+  --border:           #2a2a2a;
+  --text:             #f0f0f0;
+  --muted:            #666660;
+  --input-bg:         #222222;
+  --btn-bg:           #1db954;
+  --btn-text:         #000000;
+  --placeholder-color:#555550;
+}
+
+
+/* -------------------------------------------------------------
+   2. RESET & BASE
+------------------------------------------------------------- */
+*, *::before, *::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Syne', sans-serif;
+  overflow-x: hidden;
+  padding: 32px 18px;
+  transition: background-color 0.3s;
+}
+
+
+/* -------------------------------------------------------------
+   3. DYNAMIC BACKGROUND
+      Orbs shift to darker tones in dark mode.
+------------------------------------------------------------- */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+
+/* Orb 1 — green, top-left */
+.orb-1 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, #b8f0d0 0%, transparent 70%);
+  top: -120px;
+  left: -100px;
+  animation: drift1 16s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .orb-1 {
+  background: radial-gradient(circle, #0d3d22 0%, transparent 70%);
+  opacity: 0.7;
+}
+
+/* Orb 2 — blue, bottom-right */
+.orb-2 {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, #cce4ff 0%, transparent 70%);
+  bottom: 60px;
+  right: -80px;
+  animation: drift2 20s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .orb-2 {
+  background: radial-gradient(circle, #0a1f33 0%, transparent 70%);
+  opacity: 0.7;
+}
+
+/* Orb 3 — peach, centre */
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #fde0cc 0%, transparent 70%);
+  top: 42%;
+  left: 52%;
+  animation: drift3 24s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .orb-3 {
+  background: radial-gradient(circle, #2a1500 0%, transparent 70%);
+  opacity: 0.7;
+}
+
+@keyframes drift1 {
+  from { transform: translate(0, 0)        scale(1);    }
+  to   { transform: translate(70px, 90px)  scale(1.12); }
+}
+@keyframes drift2 {
+  from { transform: translate(0, 0)         scale(1);    }
+  to   { transform: translate(-55px, -65px) scale(1.08); }
+}
+@keyframes drift3 {
+  from { transform: translate(0, 0)        scale(1);   }
+  to   { transform: translate(-45px, 55px) scale(0.9); }
+}
+
+/* Scrolling dot grid */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+  background-size: 52px 52px;
+  animation: gridShift 28s linear infinite;
+}
+[data-theme="dark"] .bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+@keyframes gridShift {
+  from { background-position: 0 0; }
+  to   { background-position: 52px 52px; }
+}
+
+
+/* -------------------------------------------------------------
+   4. WRAPPER  (.wrapper — your original class)
+------------------------------------------------------------- */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 390px;
+}
+
+
+/* -------------------------------------------------------------
+   5. TOP BAR — Logo + theme toggle
+------------------------------------------------------------- */
+.top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  transition: color 0.3s;
+}
+.logo span {
+  color: var(--green);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.3s, border-color 0.3s, transform 0.1s;
+}
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+
+
+/* -------------------------------------------------------------
+   6. PAGE LABEL
+------------------------------------------------------------- */
+.page-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: -4px;
+  margin-bottom: 4px;
+  transition: color 0.3s;
+}
+
+
+/* -------------------------------------------------------------
+   7. CARD  (.parent — your original class)
+------------------------------------------------------------- */
+.parent {
+  width: 100%;
+  max-width: 390px;
+  min-height: 520px;
+  border-radius: 20px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 28px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+
+/* -------------------------------------------------------------
+   8. QR IMAGE HOLDER  (#img_holder — your original ID)
+------------------------------------------------------------- */
+#img_holder {
+  width: 90%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background-color: var(--input-bg);
+  border: 1.5px solid var(--border);
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.qrcode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Placeholder shown before QR is generated */
+.qr-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+  text-align: center;
+}
+.qr-placeholder svg {
+  color: var(--muted);
+  opacity: 0.35;
+  transition: color 0.3s;
+}
+.qr-placeholder p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+
+/* Actual QR image */
+#image {
+  width: 90%;
+  border-radius: 8px;
+}
+
+
+/* -------------------------------------------------------------
+   9. INPUT HOLDER  (#input_holder — your original ID)
+------------------------------------------------------------- */
+#input_holder {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  gap: 12px;
+}
+
+
+/* -------------------------------------------------------------
+   10. INPUTS  (.input — your original class)
+       (#branch, #rollno, #name — your original IDs)
+------------------------------------------------------------- */
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background-color: var(--input-bg);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.3s, color 0.3s;
+}
+.input::placeholder {
+  color: var(--placeholder-color);
+}
+.input:focus {
+  border-color: var(--green);
+  background: var(--surface);
+}
+
+
+/* -------------------------------------------------------------
+   11. GENERATE BUTTON  (#generate-bttn — your original ID)
+------------------------------------------------------------- */
+#generate-bttn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  background-color: var(--btn-bg);
+  border: none;
+  color: var(--btn-text);
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: opacity 0.15s, transform 0.1s, background-color 0.3s, color 0.3s;
+}
+#generate-bttn:hover  { opacity: 0.88; }
+#generate-bttn:active { opacity: 0.8; transform: scale(0.98); }
+
+
+/* -------------------------------------------------------------
+   12. LARGER SCREENS
+------------------------------------------------------------- */
+@media (min-width: 430px) {
+  body { padding: 32px 0; }
+}

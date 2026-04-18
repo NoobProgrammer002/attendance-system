@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>AttendX — QR Generator</title>
+  <link rel="stylesheet" href="generator.css">
+  <!-- Same fonts as the rest of AttendX -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Dynamic background (same as scanner and login page) -->
+  <div class="bg-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <!-- Your original structure — all IDs and classes unchanged -->
+  <div class="wrapper">
+
+    <!-- Top bar: logo + theme toggle -->
+    <div class="top-bar">
+      <div class="logo">Attend<span>X</span></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+    <p class="page-label">QR Generator</p>
+
+    <div class="parent">
+
+      <!-- QR code display area -->
+      <div id="img_holder">
+        <div class="qrcode">
+          <!-- Placeholder shown before QR is generated -->
+          <div class="qr-placeholder" id="qrPlaceholder">
+            <svg width="52" height="52" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="6"  y="6"  width="20" height="20" rx="2"/>
+              <rect x="11" y="11" width="10" height="10" rx="1" fill="currentColor" stroke="none"/>
+              <rect x="38" y="6"  width="20" height="20" rx="2"/>
+              <rect x="43" y="11" width="10" height="10" rx="1" fill="currentColor" stroke="none"/>
+              <rect x="6"  y="38" width="20" height="20" rx="2"/>
+              <rect x="11" y="43" width="10" height="10" rx="1" fill="currentColor" stroke="none"/>
+              <path d="M38 38h4v4h-4zM46 38h4v4h-4zM38 46h4v4h-4zM50 46h8M54 38v8"/>
+            </svg>
+            <p>Fill in the details below<br>and tap Generate QR</p>
+          </div>
+          <!-- Actual QR image (hidden until generated) -->
+          <img id="image" src="" style="display:none">
+        </div>
+      </div>
+
+      <!-- Input fields -->
+      <div id="input_holder">
+        <input class="input" id="branch" type="text" placeholder="Branch">
+        <input class="input" id="rollno" type="text" placeholder="Roll No.">
+        <input class="input" id="name"   type="text" placeholder="Name">
+      </div>
+
+    </div>
+
+    <!-- Generate button -->
+    <button id="generate-bttn">Generate QR</button>
+
+  </div>
+
+  <script src="generator.js"></script>
+  <script>
+    // ── Dark / Light mode toggle ──────────────────────────
+    // Reads saved preference from localStorage on page load
+    const savedTheme = localStorage.getItem('attendx-theme') || 'light';
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeIcon').textContent = '🌙';
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        document.getElementById('themeIcon').textContent = '☀️';
+        localStorage.setItem('attendx-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.getElementById('themeIcon').textContent = '🌙';
+        localStorage.setItem('attendx-theme', 'dark');
+      }
+    }
+
+    // ── Show QR image and hide placeholder after generate ──
+    // Wraps the existing generator.js click so placeholder hides
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('generate-bttn');
+      const placeholder = document.getElementById('qrPlaceholder');
+      const img = document.getElementById('image');
+
+      btn.addEventListener('click', function() {
+        // Small delay to let generator.js set the src first
+        setTimeout(function() {
+          if (img.src && img.src !== window.location.href) {
+            placeholder.style.display = 'none';
+            img.style.display = 'block';
+          }
+        }, 100);
+      });
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.4.4/qrcode.js" integrity="sha512-oxrVyBhqnzQ0BzuM0A/6dEIk0alz0p4SpDRaWvtuUoarIc8rnL5lVniHG5Dp21MRFojcQcmKHjaskNXhSaUPPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>
